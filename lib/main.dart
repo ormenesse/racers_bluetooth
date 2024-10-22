@@ -62,6 +62,7 @@ class _SliderBluetoothScreenState extends State<SliderBluetoothScreen> {
     //FlutterBluePlus.startScan(timeout: Duration(seconds: 4));
     List<BluetoothDevice> connectedDevices =
         await FlutterBluePlus.connectedDevices;
+    print("connected devices: " + connectedDevices.toString());
     setState(() {
       scannedDevices.addAll(connectedDevices);
     });
@@ -119,7 +120,8 @@ class _SliderBluetoothScreenState extends State<SliderBluetoothScreen> {
         (horizontalValue * 255).toInt(),
         (verticalValue * 255).toInt(),
       ];
-
+      print('data sent:' + data.toString());
+      data = utf8.encode(data.toString());
       await writeCharacteristic?.write(data);
     }
   }
@@ -140,7 +142,7 @@ class _SliderBluetoothScreenState extends State<SliderBluetoothScreen> {
                 return ListTile(
                   title: Text(scannedDevices[index].platformName.isNotEmpty
                       ? scannedDevices[index].platformName
-                      : 'Unknown Device'),
+                      : scannedDevices[index].remoteId.toString()),
                   onTap: () {
                     Navigator.pop(context);
                     connectToDevice(scannedDevices[index]);
@@ -183,8 +185,8 @@ class _SliderBluetoothScreenState extends State<SliderBluetoothScreen> {
               onChanged: _onSliderChanged,
               onChangeStart: _onSliderChangedStart,
               onChangeEnd: _onSliderChangedEnd,
-              min: -0.5,
-              max: 0.5,
+              min: 0,
+              max: 1,
             ),
           ),
           Container(
@@ -235,7 +237,7 @@ class _SliderBluetoothScreenState extends State<SliderBluetoothScreen> {
         } else if (horizontalValue < defaultHorizontalValue) {
           horizontalValue += 0.01;
         }
-        if ((horizontalValue - defaultHorizontalValue).abs() < 0.01) {
+        if ((horizontalValue - defaultHorizontalValue).abs() <= 0.01) {
           horizontalValue = defaultHorizontalValue;
           _resetTimerHorizontal?.cancel();
         }
